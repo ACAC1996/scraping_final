@@ -1,0 +1,66 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Cambia a 'master' si esa es tu rama principal
+
+jobs:
+  # Job para la ejecución de pruebas
+  test:
+    runs-on: ubuntu-latest  # El entorno de ejecución (puedes usar macOS o Windows también)
+
+    steps:
+      # Paso 1: Revisar el código desde el repositorio
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Paso 2: Configurar Python (si usas Python)
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'  # Ajusta según la versión de Python que uses
+
+      # Paso 3: Instalar dependencias
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt  # Asegúrate de tener un archivo requirements.txt
+
+      # Paso 4: Ejecutar pruebas automatizadas
+      - name: Run tests
+        run: |
+          pytest  # O el comando que uses para ejecutar tus pruebas
+
+  # Job para el despliegue en el entorno de staging
+  deploy:
+    runs-on: ubuntu-latest  # El entorno de ejecución para el despliegue
+
+    steps:
+      # Paso 1: Revisar el código desde el repositorio
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Paso 2: Configurar Python (si usas Python)
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'  # Ajusta según la versión de Python que uses
+
+      # Paso 3: Instalar dependencias
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt  # Asegúrate de tener un archivo requirements.txt
+
+      # Paso 4: Desplegar en staging (aquí depende de tu configuración, por ejemplo, si usas Heroku o AWS)
+      - name: Deploy to Staging
+        run: |
+          # Comando para desplegar en staging, ejemplo para Heroku:
+          git remote add heroku https://git.heroku.com/tu-app.git
+          git push heroku main
+          # O el comando para tu plataforma específica de despliegue
+
+    # Condicional: este job solo se ejecuta si las pruebas pasaron
+    needs: test
+    if: success()  # Solo si el job de test es exitoso
